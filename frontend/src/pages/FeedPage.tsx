@@ -2,6 +2,7 @@
 // get feed data -> supply it to the list -> display controls -> respond when controls change
 
 import PostList from "../sections/PostList";
+import FeedControls from "../sections/FeedControls";
 import type { Post } from "../types/Post";
 
 const postData: Post[] = [
@@ -31,6 +32,7 @@ const postData: Post[] = [
 function FeedPage() {
     return (
         <main>
+            <FeedControls />
             <PostList posts={postData} />
         </main>
     );
