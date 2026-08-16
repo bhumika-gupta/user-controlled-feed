@@ -3,31 +3,29 @@
 // doesn't decide ranking
 
 import PostCard from './PostCard'
+import type { Post } from "../types/Post";
 
-function PostList() {
-    <section id="posts">
-        <h1>Posts</h1>
-        <div>
-            <PostCard
-                creator="randomcreator1"
-                topic="technology"
-                content="ai this ai that"
-                timestamp="10:00 August 11 2026"
-            />
-            <PostCard
-                creator="randomcreator2"
-                topic="music"
-                content="ep release coming to u this friday"
-                timestamp="14:00 August 12 2026"
-            />
-            <PostCard
-                creator="randomcreator3"
-                topic="photography"
-                content="sunset"
-                timestamp="20:00 August 13 2026"
-            />
-        </div>
-    </section>
+interface PostListProps {
+    posts: Post[]
 }
 
-export default PostList
+function PostList({ posts }: PostListProps) {
+    return(
+        <section id="posts">
+            <h1>Posts</h1>
+            <div>
+                {posts.map((post) => (
+                    <PostCard 
+                        key={post.id} 
+                        creator={post.creator} 
+                        topic={post.topic} 
+                        content={post.content} 
+                        timestamp={post.timestamp}
+                    />
+                ))}
+            </div>
+        </section>
+    );
+}
+
+export default PostList;
