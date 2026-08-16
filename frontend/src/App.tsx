@@ -4,7 +4,7 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
-import PostList from './sections/PostList'
+import FeedPage from './pages/FeedPage'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -114,10 +114,13 @@ function App() {
           </ul>
         </div>
       </section>
-      <PostList />     
+      <FeedPage />
+  
 
       <div className="ticks"></div>
       <section id="spacer"></section>
+
+      
     </>
   )
 }
