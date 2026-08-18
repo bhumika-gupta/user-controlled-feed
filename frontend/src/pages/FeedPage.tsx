@@ -4,36 +4,27 @@
 import PostList from "../sections/PostList";
 import FeedControls from "../sections/FeedControls";
 import type { Post } from "../types/Post";
-
-const postData: Post[] = [
-    {
-        id: 1,
-        creator: 'randomcreator1', 
-        topic: "technology", 
-        content: "ai this ai that", 
-        timestamp: "10:00 August 11 2026"
-    },
-    {
-        id: 2,
-        creator: 'randomcreator1', 
-        topic: "technology", 
-        content: "ai this ai that", 
-        timestamp: "10:00 August 11 2026"
-    },
-    {
-        id: 3,
-        creator: "randomcreator3", 
-        topic: "photography", 
-        content: "sunset", 
-        timestamp: "20:00 August 13 2026"
-    }
-];
+import { useState, useEffect } from 'react';
 
 function FeedPage() {
+    const [posts, setPosts] = useState<Post[]>([]);
+
+    useEffect(() => {
+        // fetch feed from FastAPI
+        fetch("http://127.0.0.1:8000/feed")
+        // convert response to JSON
+            .then((data) => data.json())
+        // take data.feed
+            .then((data) => {
+                // call setPosts(data.feed)
+                setPosts(data.feed);
+            })
+    }, []);
+
     return (
         <main>
             <FeedControls />
-            <PostList posts={postData} />
+            <PostList posts={posts} />
         </main>
     );
 }
