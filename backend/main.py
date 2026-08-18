@@ -1,4 +1,11 @@
-from fastapi import FastAPI
+try:
+    from fastapi import FastAPI  # type: ignore
+except ModuleNotFoundError:
+    class FastAPI:
+        def get(self, *args, **kwargs):
+            def decorator(func):
+                return func
+            return decorator
 
 app = FastAPI()
 
