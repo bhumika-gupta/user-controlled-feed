@@ -1,8 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from models import Post
 
 import models
-from database import Base, engine
+from database import Base, engine, get_db
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,12 +33,21 @@ def get_health():
     return {"status": "healthy"}
 
 @app.get("/feed")
-def get_feed():
-    feed_list = [
-        {"id": 1, "creator": "randomcreator1", "topic": "technology", "content": "ai this ai that", "timestamp": "10:00 August 11 2026" },
-        {"id": 2, "creator": "randomcreator2", "topic": "music", "content": "ep release coming to u this friday", "timestamp": "14:00 August 12 2026" },
-        {"id": 3, "creator": "randomcreator3", "topic": "photography", "content": "sunset", "timestamp": "20:00 August 13 2026" }]
+def get_feed(db: Session = Depends(get_db)):
+    statement = select(Post).order_by(Post.created_at.desc())
+    posts = db.scalars(statement).all()
 
+    feed_list = [
+        {
+        "id": post.id,
+        "creator": post.creator.username,
+        "topic": post.topic,
+        "content": post.content,
+        "timestamp": post.created_at.isoformat()
+        }
+        for post in posts
+    ]
+    
     return {
         "feed": feed_list
     }
