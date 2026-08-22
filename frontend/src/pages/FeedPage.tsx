@@ -5,6 +5,7 @@ import PostList from "../sections/PostList";
 import FeedControls from "../sections/FeedControls";
 import type { Post } from "../types/Post";
 import { useState, useEffect } from 'react';
+import "./FeedPage.css";
 
 function FeedPage() {
     const [posts, setPosts] = useState<Post[]>([]); // posts = the feed data currently available to the UI
@@ -47,17 +48,35 @@ function FeedPage() {
     }, []);
 
     return (
-        <main>
-            <FeedControls />
+        <main className="feed-page">
+            <div className="feed-shell">
 
-            {/* while the backend request is still running */}
-            {loading && <p>Loading...</p>}
+                <header className="feed-header">
+                    <div>
+                        <p className="feed-eyebrow">USER-CONTROLLED FEED</p>
+                        <h1 className="feed-title">Your Feed</h1>
+                        <p className="feed-subtitle">
+                            A social feed designed to give users explicit control
+                            over how content is ranked and delivered.
+                        </p>
+                    </div>
+                </header>
 
-            {/* if the request failed*/}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+                <FeedControls />
 
-            {/* only show the feed once we're not loading and there's no error */}
-            {!loading && !error && <PostList posts={posts} />}
+                {/* while the backend request is still running */}
+                {loading && (
+                    <p className="feed-message">Loading feed...</p>
+                )}
+
+                {/* if the request failed*/}
+                {error && (
+                    <p className="feed-message feed-error">{error}</p>
+                )}
+
+                {/* only show the feed once we're not loading and there's no error */}
+                {!loading && !error && <PostList posts={posts} />}
+            </div>
         </main>
     );
 }

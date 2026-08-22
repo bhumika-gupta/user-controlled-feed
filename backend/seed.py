@@ -23,7 +23,7 @@ def seed_database():
         post1 = Post(
             creator=creator1,
             topic="technology",
-            content="ai this ai that"
+            content="new phone update is actually kinda nice"
         )
 
         post2 = Post(

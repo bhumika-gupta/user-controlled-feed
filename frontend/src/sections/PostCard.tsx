@@ -11,13 +11,30 @@ type PostCardProps = {
 }
 
 function PostCard({creator, topic, content, timestamp}: PostCardProps) {
+    const formattedTimestamp = new Intl.DateTimeFormat("en-CA", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    }).format(new Date(timestamp));
+
     return (
-        <div>
-        <p>{creator}</p>
-        <p>{topic}</p>
-        <p>{content}</p>
-        <p>{timestamp}</p>
-        </div>
+        <article className="post-card">
+            <div className="post-header">
+                <div className="post-avatar">
+                    {creator.charAt(0).toUpperCase()}
+                </div>
+
+                <div className="post-meta">
+                    <strong className="post-creator">{creator}</strong>
+                    <span className="post-time">{formattedTimestamp}</span>
+                </div>
+
+                <span className="post-topic">{topic}</span>
+            </div>
+
+            <p className="post-content">{content}</p>
+        </article>
     )
 }
 

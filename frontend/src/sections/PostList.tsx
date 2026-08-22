@@ -10,20 +10,21 @@ interface PostListProps {
 }
 
 function PostList({ posts }: PostListProps) {
+    if (posts.length === 0) {
+        return <p className="feed-message">No posts to show yet.</p>
+    }
+
     return(
-        <section id="posts">
-            <h1>Posts</h1>
-            <div>
-                {posts.map((post) => (
-                    <PostCard 
-                        key={post.id} 
-                        creator={post.creator} 
-                        topic={post.topic} 
-                        content={post.content} 
-                        timestamp={post.timestamp}
-                    />
-                ))}
-            </div>
+        <section className="post-list" aria-label="Feed posts">
+            {posts.map((post) => (
+                <PostCard 
+                    key={post.id} 
+                    creator={post.creator} 
+                    topic={post.topic} 
+                    content={post.content} 
+                    timestamp={post.timestamp}
+                />
+            ))}
         </section>
     );
 }

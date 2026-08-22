@@ -4,17 +4,30 @@
 
 function FeedControls() {
     return (
-        <div>
-            <p>Feed: </p>
-            <button>
-                [Latest]
-            </button>
-            <button>
-                [Following]
-            </button>
-        </div>
-    )
+        <section className="feed-controls">
+            <div>
+                <p className="control-label">Feed ranking</p>
+                <p className="control-description">
+                    Choose how posts are ordered.
+                </p>
+            </div>
 
+            <div className="feed-options">
+                <button
+                    type="button"
+                    className="feed-option feed-option-active"
+                >
+                    Latest
+                </button>
+                <button
+                    type="button"
+                    className="feed-option"
+                >
+                    Following
+                </button>
+            </div>
+        </section>
+    );
 }
 
 export default FeedControls
