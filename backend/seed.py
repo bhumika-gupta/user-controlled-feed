@@ -1,7 +1,7 @@
 # create fake users -> create fake posts belonging to those users -> commit them to postgresql
 
 from database import SessionLocal
-from models import User, Post
+from models import User, Post, Follow
 
 def seed_database():
     db = SessionLocal()
