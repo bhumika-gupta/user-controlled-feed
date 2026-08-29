@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
@@ -58,3 +58,44 @@ class Post(Base):
         back_populates="posts"
     )
 
+class Follow(Base):
+    __tablename__ = "follows"
+
+    # prevents the same follow relationship from being stored more than once
+    # the pair (follower_id, followed_id) must be unique
+    __table_args__ = (
+        UniqueConstraint(
+            "follower_id",
+            "followed_id",
+            name="uq_follower_followed"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    # the user who is doing the following
+    # points to that user's row in the users table
+    follower_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
+    )
+
+    # the user who is being followed
+    # also points to a row in the users table
+    followed_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
+    )
+
+    # lets Python access the User object represented by follower_id
+    # foreign_keys is needed because Follow has two foreign keys pointing to users.id
+    follower: Mapped["User"] = relationship(
+        foreign_keys=[follower_id]
+    )
+
+    # lets Python access the User object represented by followed_id
+    followed: Mapped["User"] = relationship(
+        foreign_keys=[followed_id]
+    )
