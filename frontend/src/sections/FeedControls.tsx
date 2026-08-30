@@ -2,7 +2,15 @@
 // initially: latest, following
 // eventually: user directed. topics, ranking preferences
 
-function FeedControls() {
+import type { FeedMode } from "../types/Feed"
+
+interface FeedControlsProps {
+    feedMode: FeedMode;
+    onFeedModeChange: (mode: FeedMode) => void;
+}
+
+
+function FeedControls({feedMode, onFeedModeChange}: FeedControlsProps) {
     return (
         <section className="feed-controls">
             <div>
@@ -15,13 +23,23 @@ function FeedControls() {
             <div className="feed-options">
                 <button
                     type="button"
-                    className="feed-option feed-option-active"
+                    className={
+                        feedMode === "latest" 
+                            ? "feed-option feed-option-active"
+                            : "feed-option"
+                    } 
+                    onClick={() => onFeedModeChange("latest")}
                 >
                     Latest
                 </button>
                 <button
                     type="button"
-                    className="feed-option"
+                    className={
+                        feedMode === "following"
+                            ? "feed-option feed-option-active"
+                            : "feed-option"
+                    }
+                    onClick={() => onFeedModeChange("following")}
                 >
                     Following
                 </button>

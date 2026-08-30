@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from models import Post
+from models import Post, User, Follow
 
 import models
 from database import Base, engine, get_db
@@ -33,9 +33,31 @@ def get_health():
     return {"status": "healthy"}
 
 @app.get("/feed")
-def get_feed(db: Session = Depends(get_db)):
-    statement = select(Post).order_by(Post.created_at.desc())
-    posts = db.scalars(statement).all()
+def get_feed(db: Session = Depends(get_db), mode: str = "latest"):
+    
+    if mode == "following":
+        demo_user = db.scalar(
+            select(User).where(User.username=="demo_user")
+        )
+        followed_users_ids_by_demo_user = select(Follow.followed_id).where(
+            Follow.follower_id==demo_user.id
+        )
+
+        statement_followed_posts = (
+            select(Post)
+            .where(Post.creator_id.in_(followed_users_ids_by_demo_user))
+            .order_by(Post.created_at.desc())
+        )
+
+        posts = db.scalars(statement_followed_posts).all()
+    elif mode == "latest":
+        statement_all_posts = select(Post).order_by(
+            Post.created_at.desc()
+        )
+        
+        posts = db.scalars(statement_all_posts).all()
+    else:
+        return {"error": "mode not available"}
 
     feed_list = [
         {

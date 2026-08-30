@@ -4,6 +4,7 @@
 import PostList from "../sections/PostList";
 import FeedControls from "../sections/FeedControls";
 import type { Post } from "../types/Post";
+import type { FeedMode } from "../types/Feed"
 import { useState, useEffect } from 'react';
 import "./FeedPage.css";
 
@@ -11,6 +12,7 @@ function FeedPage() {
     const [posts, setPosts] = useState<Post[]>([]); // posts = the feed data currently available to the UI
     const [loading, setLoading] = useState(false); // loading is a flag to show whether we're currently waiting for a response from the server/backend
     const [error, setError] = useState<string | null>(null); // error message if the fetch fails or returns an error
+    const [feedMode, setFeedMode] = useState<FeedMode>("latest");
 
     useEffect(() => {
         // useEffect itself shouldn't be async, so define async function inside it:
@@ -22,7 +24,7 @@ function FeedPage() {
             try {
                 // start the HTTP request to fastAPI
                 // "await" pauses THIS async function until the response arrives
-                const response = await fetch("http://127.0.0.1:8000/feed");
+                const response = await fetch(`http://127.0.0.1:8000/feed?mode=${feedMode}`);
                 
                 // fetch() doesn't automatically throw for 404/500 responses, so explicitly treat unsuccessful HTTP responses as errors:
                 if (!response.ok) {
@@ -43,9 +45,8 @@ function FeedPage() {
 
         // actually start the async work after FeedPage renders
         fetchFeed();
-        
-        // [] = empty dependency array: run this effect when FeedPage first mounts (when React creates it and puts it into the UI for the first time)
-    }, []);
+
+    }, [feedMode]); // [feedMode] = effect should react whenever feedMode changes
 
     return (
         <main className="feed-page">
@@ -62,7 +63,10 @@ function FeedPage() {
                     </div>
                 </header>
 
-                <FeedControls />
+                <FeedControls 
+                    feedMode={feedMode}
+                    onFeedModeChange={setFeedMode}
+                />
 
                 {/* while the backend request is still running */}
                 {loading && (
