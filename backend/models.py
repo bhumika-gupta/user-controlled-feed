@@ -99,3 +99,28 @@ class Follow(Base):
     followed: Mapped["User"] = relationship(
         foreign_keys=[followed_id]
     )
+
+class FeedPreference(Base):
+    __tablename__ = "feed_preferences"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        unique=True, # each user should only have one current preference record
+        nullable=False,
+        index=True
+    )
+
+    default_feed_mode: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        server_default="latest"
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(), # SQLAlchemy will update the timestamp when it issues an update
+        nullable=False
+    )
