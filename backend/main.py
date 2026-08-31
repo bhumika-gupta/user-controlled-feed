@@ -4,7 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from models import Post, User, Follow, FeedPreference
-from schemas import FeedMode, FeedPreferenceUpdate
+from schemas import (
+    FeedMode,
+    FeedPreferenceUpdate,
+    FeedPreferenceResponse,
+    FeedResponse,
+)
 
 import models
 from database import Base, engine, get_db
@@ -33,7 +38,7 @@ async def root():
 def get_health():
     return {"status": "healthy"}
 
-@app.get("/feed")
+@app.get("/feed", response_model=FeedResponse)
 def get_feed(db: Session = Depends(get_db), mode: FeedMode = "latest"):
     
     if mode == "following":
@@ -67,7 +72,7 @@ def get_feed(db: Session = Depends(get_db), mode: FeedMode = "latest"):
         "creator": post.creator.username,
         "topic": post.topic,
         "content": post.content,
-        "timestamp": post.created_at.isoformat()
+        "timestamp": post.created_at
         }
         for post in posts
     ]
@@ -77,7 +82,7 @@ def get_feed(db: Session = Depends(get_db), mode: FeedMode = "latest"):
     }
 
 # tell frontend the current saved feed mode
-@app.get("/feed-preference") 
+@app.get("/feed-preference", response_model=FeedPreferenceResponse) 
 def get_feed_preference(db: Session = Depends(get_db)):
     demo_user = db.scalar(
         select(User).where(User.username == "demo_user")
@@ -100,7 +105,7 @@ def get_feed_preference(db: Session = Depends(get_db)):
     }
 
 # change the saved feed mode
-@app.patch("/feed-preference")
+@app.patch("/feed-preference", response_model=FeedPreferenceResponse)
 def update_feed_preference(
     preference_update: FeedPreferenceUpdate,
     db: Session = Depends(get_db)
