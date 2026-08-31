@@ -2,11 +2,9 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from typing import Literal
 
-FeedMode = Literal["latest", "following"]
-
-from models import Post, User, Follow
+from models import Post, User, Follow, FeedPreference
+from schemas import FeedMode, FeedPreferenceUpdate
 
 import models
 from database import Base, engine, get_db
@@ -40,7 +38,7 @@ def get_feed(db: Session = Depends(get_db), mode: FeedMode = "latest"):
     
     if mode == "following":
         demo_user = db.scalar(
-            select(User).where(User.username=="demo_user")
+            select(User).where(User.username == "demo_user")
         )
         if demo_user is None:
             raise HTTPException(status_code=404, detail="demo_user not found")
@@ -78,3 +76,58 @@ def get_feed(db: Session = Depends(get_db), mode: FeedMode = "latest"):
         "feed": feed_list
     }
 
+# tell frontend the current saved feed mode
+@app.get("/feed-preference") 
+def get_feed_preference(db: Session = Depends(get_db)):
+    demo_user = db.scalar(
+        select(User).where(User.username == "demo_user")
+    )
+
+    if demo_user is None:
+        raise HTTPException(status_code=404, detail="demo_user not found")
+
+    feed_preference_demo_user = db.scalar(
+        select(FeedPreference).where(
+            FeedPreference.user_id == demo_user.id
+        )
+    )
+
+    if feed_preference_demo_user is None:
+        raise HTTPException(status_code=404, detail=f"Feed preference for {demo_user.username} not found")
+
+    return {
+        "default_feed_mode": feed_preference_demo_user.default_feed_mode
+    }
+
+# change the saved feed mode
+@app.patch("/feed-preference")
+def update_feed_preference(
+    preference_update: FeedPreferenceUpdate,
+    db: Session = Depends(get_db)
+):
+    demo_user = db.scalar(
+        select(User).where(User.username == "demo_user")
+    )
+
+    if demo_user is None:
+            raise HTTPException(status_code=404, detail="demo_user not found")
+
+    feed_preference_demo_user = db.scalar(
+        select(FeedPreference).where(
+            FeedPreference.user_id == demo_user.id
+        )
+    )
+
+    if feed_preference_demo_user is None:
+        raise HTTPException(status_code=404, detail=f"Feed preference for {demo_user.username} not found")
+
+    feed_preference_demo_user.default_feed_mode = (
+        preference_update.default_feed_mode
+    )
+
+    db.commit()
+    db.refresh(feed_preference_demo_user)
+
+    return {
+        "default_feed_mode": feed_preference_demo_user.default_feed_mode
+    }
