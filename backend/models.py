@@ -25,7 +25,7 @@ class User(Base):
 
     feed_preference: Mapped["FeedPreference | None"] = relationship(
         back_populates="user",
-        useList=False # tells SQLAlchemy to give one object rather than a list when user.feed_preference accessed
+        uselist=False # tells SQLAlchemy to give one object rather than a list when user.feed_preference accessed
     )
 
 class Post(Base):
@@ -119,12 +119,12 @@ class FeedPreference(Base):
     default_feed_mode: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        server_default="latest"
+        server_default="latest" # if a FeedPreference row gets inserted without specifying default_feed_mode, PostgreSQL fills it with "latest"
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(), # if a FeedPreference row gets inserted without specifying default_feed_mode, PostgreSQL fills it with "latest"
+        server_default=func.now(), # when the preference row is first inserted, PostgreSQL fills updated_at with the current timestamp
         onupdate=func.now(), # SQLAlchemy will update the timestamp when it issues an update
         nullable=False
     )
