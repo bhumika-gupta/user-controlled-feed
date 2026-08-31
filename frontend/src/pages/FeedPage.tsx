@@ -12,9 +12,35 @@ function FeedPage() {
     const [posts, setPosts] = useState<Post[]>([]); // posts = the feed data currently available to the UI
     const [loading, setLoading] = useState(false); // loading is a flag to show whether we're currently waiting for a response from the server/backend
     const [error, setError] = useState<string | null>(null); // error message if the fetch fails or returns an error
-    const [feedMode, setFeedMode] = useState<FeedMode>("latest");
+    const [feedMode, setFeedMode] = useState<FeedMode | null>(null);
 
     useEffect(() => {
+        async function fetchFeedPreference() {
+            try {
+                const response = await fetch(
+                    "http://127.0.0.1:8000/feed-preference"
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch feed preference");
+                }
+
+                const data = await response.json();
+
+                setFeedMode(data.default_feed_mode);
+            } catch (err) {
+                setError("Something went wrong. Please try again.");
+            }
+        }
+
+        fetchFeedPreference();
+    }, []); // [] = get the user's saved preference once when the page mounts
+
+    useEffect(() => {
+        if (feedMode === null) {
+            return;
+        }
+
         // useEffect itself shouldn't be async, so define async function inside it:
         async function fetchFeed() {
             // about to start an external request
@@ -63,10 +89,17 @@ function FeedPage() {
                     </div>
                 </header>
 
-                <FeedControls 
-                    feedMode={feedMode}
-                    onFeedModeChange={setFeedMode}
-                />
+                {feedMode === null && !error && (
+                    <p className="feed-message">Loading preferences...</p>
+                )}
+
+                {feedMode !== null && (
+                    <FeedControls 
+                        feedMode={feedMode}
+                        onFeedModeChange={setFeedMode}
+                    />
+                )}
+                
 
                 {/* while the backend request is still running */}
                 {loading && (
@@ -79,7 +112,9 @@ function FeedPage() {
                 )}
 
                 {/* only show the feed once we're not loading and there's no error */}
-                {!loading && !error && <PostList posts={posts} />}
+                {!loading && !error && feedMode !== null && (
+                    <PostList posts={posts} />
+                )}
             </div>
         </main>
     );
