@@ -74,6 +74,43 @@ function FeedPage() {
 
     }, [feedMode]); // [feedMode] = effect should react whenever feedMode changes
 
+    // runs only when user clicks a feed option
+    async function handleFeedModeChange(newMode: FeedMode) {
+        try {
+            // ask the backend to save the user's new default feed mode in PostgreSQL
+            const response = await fetch(
+                    "http://127.0.0.1:8000/feed-preference",
+                    {
+                        method: "PATCH", // PATCH = update part of an existing resource
+
+                        // tell FastAPI that we're sending JSON
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+
+                        // this matches the FeedPreferenceUpdate Pydantic schema:
+                        // { default_feed_mode: "latest" | "following" }
+                        body: JSON.stringify({
+                            default_feed_mode: newMode,
+                        }),
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to save feed preference");
+                }
+
+                // PATCH endpoint returns the saved preference.
+                const data = await response.json();
+
+                // update React only after PostgreSQL successfully saved it
+                // changing feedMode will also trigger your [feedMode] useEffect, which fetches the posts for the newly selected mode
+                setFeedMode(data.default_feed_mode);
+        } catch (err) {
+            setError("Failed to save your feed preference.");
+        }
+    };
+
     return (
         <main className="feed-page">
             <div className="feed-shell">
@@ -96,7 +133,7 @@ function FeedPage() {
                 {feedMode !== null && (
                     <FeedControls 
                         feedMode={feedMode}
-                        onFeedModeChange={setFeedMode}
+                        onFeedModeChange={handleFeedModeChange}
                     />
                 )}
                 
