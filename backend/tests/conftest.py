@@ -121,10 +121,11 @@ def test_database():
         test_db.close()
 
     # the test itself runs here
-    yield
-
-    # drop tables (after the test finishes, remove everything)
-    Base.metadata.drop_all(bind=test_engine)
+    try:
+        yield
+    finally:
+        # drop tables (after the test finishes, remove everything)
+        Base.metadata.drop_all(bind=test_engine)
 
 
 
@@ -150,10 +151,3 @@ def client(test_database):
 
     # remove override (make sure the real app dependency is restored afterward)
     app.dependency_overrides.clear()
-    
-    
-
-
-
-
-

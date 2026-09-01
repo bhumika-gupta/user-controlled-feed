@@ -11,10 +11,11 @@ from schemas import (
     FeedResponse,
 )
 
-import models
-from database import Base, engine, get_db
+# import models
+# from database import Base, engine, get_db
+from database import get_db
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
